@@ -1,13 +1,19 @@
-# apono
+# Backstage Apono plugin
 
-Welcome to the apono plugin!
-
-_This plugin was created through the Backstage CLI_
+Welcome to the Apono plugin!
 
 ## Getting started
 
-Your plugin has been added to the example app in this repository, meaning you'll be able to access it by running `yarn start` in the root directory, and then navigating to [/apono](http://localhost:3000/apono).
+### Enabling frontend
 
-You can also serve the plugin in isolation by running `yarn start` in the plugin directory.
-This method of serving the plugin provides quicker iteration speed and a faster startup and hot reloads.
-It is only meant for local development, and the setup for it can be found inside the [/dev](./dev) directory.
+```bash
+yarn --cwd packages/app add @apono-io/backstage-plugin-apono
+```
+
+### Enabling backend
+
+See [backstage-plugin-apono-backend](https://github.com/apono-io/backstage-plugin-apono-backend#enabling-backend).
+
+## Contributing
+
+Everyone is welcome to contribute to this repository. Feel free to raise [issues](https://github.com/apono-io/backstage-plugin-apono/issues) or to submit [Pull Requests.](https://github.com/apono-io/backstage-plugin-apono/pulls)
