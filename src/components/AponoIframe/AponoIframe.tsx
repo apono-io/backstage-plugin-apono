@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useMemo, useRef } from "react";
 
-import styles from './AponoIframe.module.css';
 import { useIframeMessages } from "./useIframeMessages";
 
 interface AponoIframeProps {
@@ -9,15 +8,16 @@ interface AponoIframeProps {
 
 export function AponoIframe({ clientUrl }: AponoIframeProps) {
   const iframeRef = useRef(null);
-  const [classNames, setClassNames] = useState<string[]>([styles.aponoIframe]);
 
   const { appIsReady } = useIframeMessages(iframeRef, clientUrl);
 
-  useEffect(() => {
-    if (appIsReady) {
-      setClassNames(prev => [...prev, styles.aponoIframeVisible]);
-    }
-  }, [appIsReady]);
+  const iframeStyles: React.CSSProperties = useMemo(() => ({
+    width: '100%',
+    height: '100%',
+    border: 'none',
+    opacity: appIsReady ? 1 : 0,
+    transition: 'opacity 0.3s ease-in-out',
+  }), [appIsReady]);
 
-  return <iframe ref={iframeRef} src={clientUrl} className={classNames.join(' ')} id="iframe" title="Apono" />
+  return (<iframe ref={iframeRef} src={clientUrl} style={iframeStyles} id="iframe" title="Apono" />)
 }
