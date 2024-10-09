@@ -10,6 +10,15 @@ Welcome to the Apono plugin!
 yarn --cwd packages/app add @apono-io/backstage-plugin-apono
 ```
 
+After you install the plugin, you need to add it to the route in `packages/app/src/App.tsx`:
+
+```tsx
+import { AponoPage } from '@apono-io/backstage-plugin-apono';
+
+// Inside your App component's routes
+<Route path="/apono" element={<AponoPage />} />
+```
+
 ### Enabling backend
 
 See [backstage-plugin-apono-backend](https://github.com/apono-io/backstage-plugin-apono-backend#enabling-backend).
