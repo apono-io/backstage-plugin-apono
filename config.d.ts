@@ -4,6 +4,6 @@ export interface Config {
      * Frontend root URL
      * @visibility frontend
      */
-    clientUrl: string;
+    clientUrl?: string;
   };
 }

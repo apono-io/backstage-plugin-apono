@@ -4,9 +4,11 @@ import { useApi,  configApiRef } from '@backstage/core-plugin-api';
 
 import { AponoIframe } from '../AponoIframe';
 
+const defaultClientUrl = 'https://backstage-client.apono.io';
+
 export function AppWrapper() {
   const config = useApi(configApiRef);
-  const clientUrl = config.getString('apono.clientUrl');
+  const clientUrl = config.getOptionalString('apono.clientUrl') || defaultClientUrl;
 
   return (
     <Page themeId="tool" >
