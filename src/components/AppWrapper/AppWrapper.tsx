@@ -12,7 +12,7 @@ export function AppWrapper() {
 
   return (
     <Page themeId="tool" >
-      <Header title="Apono" subtitle="Automate access" />
+      <Header title="Apono" subtitle="Dynamic, just-in-time, just-enough access management that developers love." />
       <Content stretch noPadding>
         <AponoIframe clientUrl={clientUrl} />
       </Content>
