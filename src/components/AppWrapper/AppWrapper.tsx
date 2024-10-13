@@ -25,15 +25,16 @@ export function AppWrapper() {
 
 function CSPEffect({ clientUrl }: { clientUrl: string }) {
   useEffect(() => {
-    let meta: HTMLMetaElement | null = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+    let meta: HTMLMetaElement | null = document.querySelector('meta[http-equiv="Content-Security-Policy"][data-type="iframe"]');
 
     if (clientUrl) {
       if (!meta) {
         meta = document.createElement('meta');
         meta.httpEquiv = "Content-Security-Policy";
+        meta.dataset.type = "iframe"; // Custom data attribute to identify this specific CSP meta tag
         document.head.appendChild(meta);
       }
-      meta.content = `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; frame-src ${clientUrl}`;
+      meta.content = `frame-src ${clientUrl}`;
     } else if (meta) {
       document.head.removeChild(meta);
     }
