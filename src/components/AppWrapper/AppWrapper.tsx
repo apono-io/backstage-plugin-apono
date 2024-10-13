@@ -33,7 +33,7 @@ function CSPEffect({ clientUrl }: { clientUrl: string }) {
         meta.httpEquiv = "Content-Security-Policy";
         document.head.appendChild(meta);
       }
-      meta.content = `default-src 'self'; frame-src '${clientUrl}'`;
+      meta.content = `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; frame-src ${clientUrl}`;
     } else if (meta) {
       document.head.removeChild(meta);
     }
