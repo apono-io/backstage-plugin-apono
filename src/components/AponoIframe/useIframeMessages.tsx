@@ -1,4 +1,4 @@
-import { useApi } from '@backstage/core-plugin-api';
+import { identityApiRef, useApi } from '@backstage/core-plugin-api';
 import React, { useCallback, useEffect, useState } from 'react';
 import { aponoApiRef } from '../../api';
 
@@ -24,6 +24,7 @@ interface IframeMessage {
 
 function useAuthenticate(iframeRef: React.RefObject<HTMLIFrameElement>, clientUrl: string) {
   const apiClient = useApi(aponoApiRef);
+  const identityApi = useApi(identityApiRef);
 
   const clientUrlParsed = new URL(clientUrl);
 
@@ -34,13 +35,17 @@ function useAuthenticate(iframeRef: React.RefObject<HTMLIFrameElement>, clientUr
 
   const fetchToken = async () => {
     setIsFetching(true);
-    apiClient.authenticate()
-      .then(t => setToken(t.token))
-      .catch((err) => setError(err))
-      .finally(() => {
-        setIsFetched(true)
-        setIsFetching(false)
-      });
+
+    try {
+      const profile = await identityApi.getProfileInfo();
+      const res = await apiClient.authenticate(profile?.email);
+      setToken(res.token);
+    } catch (err) {
+      setError(err as Error)
+    }
+
+    setIsFetched(true)
+    setIsFetching(false)
   }
 
   const sendMessage = useCallback((message: IframeMessage) => {

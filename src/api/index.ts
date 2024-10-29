@@ -5,7 +5,7 @@ export interface AponoAuth {
 }
 
 export interface AponoApi {
-  authenticate: () => Promise<AponoAuth>;
+  authenticate: (email?: string) => Promise<AponoAuth>;
 }
 
 export type Options = {
@@ -40,12 +40,18 @@ export class AponoApiClient implements AponoApi {
     return await resp.json();
   }
 
-  async authenticate(): Promise<AponoAuth> {
-    return await this.fetch<AponoAuth>('/api/apono/authenticate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+  async authenticate(email?: string): Promise<AponoAuth> {
+    const options: RequestInit = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+    }
+
+    if (email) {
+      options.body = JSON.stringify({ email });
+    }
+
+    return await this.fetch<AponoAuth>('/api/apono/authenticate', options);
   }
 }
