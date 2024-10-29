@@ -1,6 +1,7 @@
 import React, { useMemo, useRef } from "react";
 
 import { useIframeMessages } from "./useIframeMessages";
+import { WarningPanel } from "@backstage/core-components";
 
 interface AponoIframeProps {
   clientUrl: string;
@@ -9,7 +10,7 @@ interface AponoIframeProps {
 export function AponoIframe({ clientUrl }: AponoIframeProps) {
   const iframeRef = useRef(null);
 
-  const { appIsReady } = useIframeMessages(iframeRef, clientUrl);
+  const { appIsReady, error } = useIframeMessages(iframeRef, clientUrl);
 
   const iframeStyles: React.CSSProperties = useMemo(() => ({
     width: '100%',
@@ -18,6 +19,20 @@ export function AponoIframe({ clientUrl }: AponoIframeProps) {
     opacity: appIsReady ? 1 : 0,
     transition: 'opacity 0.3s ease-in-out',
   }), [appIsReady]);
+
+  if (error) {
+    let message = 'An error occurred, please contact support.';
+    try {
+      message = JSON.parse(error.message).message;
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to parse error message', e);
+    }
+
+    return (
+      <WarningPanel severity="error" title="Internal error" message={message} />
+    );
+  }
 
   return (<iframe ref={iframeRef} src={clientUrl} style={iframeStyles} id="iframe" title="Apono" />)
 }

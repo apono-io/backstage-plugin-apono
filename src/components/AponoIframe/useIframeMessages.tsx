@@ -14,7 +14,6 @@ interface IframeAuth {
   token: string;
   isFetched: boolean;
   isFetching: boolean;
-  error?: string;
 }
 
 interface IframeMessage {
@@ -31,13 +30,13 @@ function useAuthenticate(iframeRef: React.RefObject<HTMLIFrameElement>, clientUr
   const [token, setToken] = useState<string | undefined>();
   const [isFetched, setIsFetched] = useState<boolean>(false);
   const [isFetching, setIsFetching] = useState<boolean>(false);
-  const [error, setError] = useState<string | undefined>();
+  const [error, setError] = useState<Error | undefined>();
 
   const fetchToken = async () => {
     setIsFetching(true);
     apiClient.authenticate()
       .then(t => setToken(t.token))
-      .catch(() => setError('Failed to authenticate'))
+      .catch((err) => setError(err))
       .finally(() => {
         setIsFetched(true)
         setIsFetching(false)
@@ -56,18 +55,16 @@ function useAuthenticate(iframeRef: React.RefObject<HTMLIFrameElement>, clientUr
         isFetched,
         token,
         isFetching,
-        error
       }});
     }
   }, [isFetched, token, isFetching, error, sendMessage]);
 
-  return fetchToken
+  return { fetchToken, error }
 }
 
 export function useIframeMessages(iframeRef: React.RefObject<HTMLIFrameElement>, clientUrl: string) {
   const [appIsReady, setAppIsReady] = useState(false);
-  const fetchToken = useAuthenticate(iframeRef, clientUrl);
-
+  const { fetchToken, error } = useAuthenticate(iframeRef, clientUrl);
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent<IframeMessage>) => {
@@ -92,5 +89,5 @@ export function useIframeMessages(iframeRef: React.RefObject<HTMLIFrameElement>,
     return () => window.removeEventListener('message', handleMessage);
   }, [iframeRef, clientUrl, fetchToken]);
 
-  return { appIsReady };
+  return { appIsReady, error };
 }
