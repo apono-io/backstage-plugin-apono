@@ -10,7 +10,7 @@ const defaultClientUrl = 'https://backstage-client.apono.io';
 export function AppWrapper() {
   const config = useApi(configApiRef);
   const clientUrl = config.getOptionalString('apono.clientUrl') || defaultClientUrl;
-  const { profile } = useProfile();
+  const { profile, loading } = useProfile();
 
   return (
     <Page themeId="tool" >
@@ -20,9 +20,11 @@ export function AppWrapper() {
       >
         <HeaderLabel label={profile?.displayName || 'Unknown'} value={profile?.email} />
       </Header>
-      <Content stretch noPadding>
-        <AponoIframe clientUrl={clientUrl} />
-      </Content>
+      {!loading && (
+        <Content stretch noPadding>
+          <AponoIframe clientUrl={clientUrl} profile={profile || undefined} />
+        </Content>
+      )}
     </Page>
   );
 }
