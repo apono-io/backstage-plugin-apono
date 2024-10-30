@@ -2,15 +2,17 @@ import React, { useMemo, useRef } from "react";
 
 import { useIframeMessages } from "./useIframeMessages";
 import { WarningPanel } from "@backstage/core-components";
+import { ProfileInfo } from '@backstage/core-plugin-api';
 
 interface AponoIframeProps {
   clientUrl: string;
+  profile?: ProfileInfo
 }
 
-export function AponoIframe({ clientUrl }: AponoIframeProps) {
+export function AponoIframe({ clientUrl, profile }: AponoIframeProps) {
   const iframeRef = useRef(null);
 
-  const { appIsReady, error } = useIframeMessages(iframeRef, clientUrl);
+  const { appIsReady, error } = useIframeMessages(iframeRef, clientUrl, profile);
 
   const iframeStyles: React.CSSProperties = useMemo(() => ({
     width: '100%',
