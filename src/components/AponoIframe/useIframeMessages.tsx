@@ -79,8 +79,8 @@ export function useIframeMessages(
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent<IframeMessage>) => {
-    const clientUrlParsed = new URL(clientUrl);
-    const originUrlParsed = new URL(event.origin);
+      const clientUrlParsed = new URL(clientUrl);
+      const originUrlParsed = new URL(event.origin);
 
       if (originUrlParsed.origin !== clientUrlParsed.origin) {
         return;
