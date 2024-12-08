@@ -1,5 +1,5 @@
 import { createApiRef, FetchApi, ConfigApi } from '@backstage/core-plugin-api';
-import { version } from '../version';
+import { VERSION } from '../version';
 
 export interface AponoAuth {
   token: string;
@@ -46,7 +46,7 @@ export class AponoApiClient implements AponoApi {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-backstage-plugin-version': version,
+          'x-backstage-plugin-version': VERSION,
         },
     }
 
