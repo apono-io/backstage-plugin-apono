@@ -40,7 +40,7 @@ describe('AponoIframe', () => {
     const iframe = screen.getByTitle('Apono')
     expect(iframe).toBeInTheDocument()
     expect(iframe).toHaveAttribute('src', defaultProps.clientUrl.toString())
-    expect(iframe).toHaveAttribute('sandbox', 'allow-scripts')
+    expect(iframe).toHaveAttribute('sandbox', 'allow-scripts allow-same-origin')
   })
 
   it('renders error panel when authentication fails', async () => {
