@@ -34,22 +34,9 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          yarn version --new-version ${GITHUB_REF#refs/tags/v} --no-git-tag-version --message "chore(release): %s [skip ci]"
           node scripts/update-version.js
           echo "//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN" > .npmrc
           yarn publish --non-interactive
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore(release): version bump [skip ci]"
-          title: "chore(release): version bump"
-          body: |
-            Automated version bump after release
-          branch: version-bump
-          base: main
-          delete-branch: true
