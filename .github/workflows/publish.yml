@@ -37,7 +37,14 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Push changes
-        run: |
-          git push
-          git push --tags
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(release): version bump [skip ci]"
+          title: "chore(release): version bump"
+          body: |
+            Automated version bump after release
+          branch: version-bump
+          base: main
+          delete-branch: true
