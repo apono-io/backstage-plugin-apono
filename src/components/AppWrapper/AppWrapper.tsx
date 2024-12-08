@@ -4,13 +4,32 @@ import { useApi,  configApiRef } from '@backstage/core-plugin-api';
 
 import { AponoIframe } from '../AponoIframe';
 import { useProfile } from './useProfile';
+import { isValidUrl } from '../helpers';
 
 const defaultClientUrl = 'https://backstage-client.apono.io';
 
-export function AppWrapper() {
+function useAppWrapper() {
   const config = useApi(configApiRef);
+  const { profile, loading: isProfileLoading } = useProfile();
+
   const clientUrl = config.getOptionalString('apono.clientUrl') || defaultClientUrl;
-  const { profile, loading } = useProfile();
+
+  if (!isValidUrl(clientUrl)) {
+    throw new Error('Invalid client URL');
+  }
+
+  const clientUrlParsed = new URL(clientUrl);
+
+  return {
+    clientUrl: clientUrlParsed,
+    supportLinks: config.getOptionalConfigArray('apono.supportLinks') || [],
+    profile,
+    isProfileLoading,
+  };
+}
+
+export function AppWrapper() {
+  const { clientUrl, supportLinks, profile, isProfileLoading } = useAppWrapper();
 
   return (
     <Page themeId="tool" >
@@ -18,9 +37,12 @@ export function AppWrapper() {
         title="Apono"
         subtitle="Dynamic, just-in-time, just-enough access management that developers love."
       >
+        {supportLinks.map((link) => (
+          <HeaderLabel key={link.getString('label')} label={link.getString('label')} value={link.getString('value')} url={link.getString('url')} />
+        ))}
         <HeaderLabel label={profile?.displayName || 'Unknown'} value={profile?.email} />
       </Header>
-      {!loading && (
+      {!isProfileLoading && (
         <Content stretch noPadding>
           <AponoIframe clientUrl={clientUrl} profile={profile || undefined} />
         </Content>

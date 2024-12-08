@@ -12,3 +12,10 @@ backend:
 
 apono:
   clientUrl: http://localhost:9011
+  supportLinks:
+    - label: Support
+      value: Go here
+      url: https://example.com/support
+    - label: Documentation
+      value: Go here
+      url: https://example.com/docs
