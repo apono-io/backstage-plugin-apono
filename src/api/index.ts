@@ -1,5 +1,5 @@
 import { createApiRef, FetchApi, ConfigApi } from '@backstage/core-plugin-api';
-import packageJson from '../../package.json';
+// import packageJson from '../../package.json';
 
 export interface AponoAuth {
   token: string;
@@ -18,7 +18,8 @@ export const aponoApiRef = createApiRef<AponoApi>({
   id: 'plugin.apono-api.service',
 });
 
-const version = packageJson.version || process.env.REACT_APP_PLUGIN_VERSION || 'unknown';
+// const version = packageJson.version || process.env.REACT_APP_PLUGIN_VERSION || 'unknown';
+const version = '1.0.0';
 
 export class AponoApiClient implements AponoApi {
   // @ts-ignore
