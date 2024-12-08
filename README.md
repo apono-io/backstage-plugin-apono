@@ -39,4 +39,4 @@ Note: If you're using a different environment (e.g., staging), make sure to use 
 
 ## Contributing
 
-Everyone is welcome to contribute to this repository. Feel free to raise [issues](https://github.com/apono-io/backstage-plugin-apono/issues) or to submit [Pull Requests.](https://github.com/apono-io/backstage-plugin-apono/pulls)
+Everyone is welcome to contribute to this repository. Feel free to raise [issues](https://github.com/apono-io/backstage-plugin-apono/issues) or to submit [Pull Requests.](https://github.com/apono-io/backstage-plugin-apono/pulls).
