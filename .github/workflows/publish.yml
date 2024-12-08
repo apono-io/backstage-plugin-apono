@@ -30,7 +30,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          yarn version --new-version ${GITHUB_REF#refs/tags/v} --message "chore(release): %s [skip ci]"
+          yarn version --new-version ${GITHUB_REF#refs/tags/v} --no-git-tag-version --message "chore(release): %s [skip ci]"
           node scripts/update-version.js
           yarn publish --non-interactive
         env:
