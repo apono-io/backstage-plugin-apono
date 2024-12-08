@@ -36,5 +36,5 @@ export function AponoIframe({ clientUrl, profile }: AponoIframeProps) {
     );
   }
 
-  return (<iframe ref={iframeRef} src={clientUrl.toString()} style={iframeStyles} id="iframe" title="Apono" sandbox="allow-scripts" />)
+  return (<iframe ref={iframeRef} src={clientUrl.toString()} style={iframeStyles} id="iframe" title="Apono" sandbox="allow-scripts allow-same-origin" />)
 }

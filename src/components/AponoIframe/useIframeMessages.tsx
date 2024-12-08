@@ -1,7 +1,7 @@
 import { useApi, ProfileInfo } from '@backstage/core-plugin-api';
 import React, { useCallback, useEffect, useState } from 'react';
 import { aponoApiRef } from '../../api';
-import { isValidUrl } from '../helpers';
+import { isSameOrigin, isValidUrl } from '../helpers';
 
 export const MessageType = {
   READY: 'READY',
@@ -73,7 +73,6 @@ export function useIframeMessages(
   clientUrl: URL,
   profile?: ProfileInfo,
 ) {
-  const clientUrlParsed = new URL(clientUrl);
 
   const [appIsReady, setAppIsReady] = useState(false);
   const { fetchToken, error } = useAuthenticate(iframeRef, clientUrl, profile);
@@ -87,9 +86,7 @@ export function useIframeMessages(
           return;
         }
 
-        const originUrlParsed = new URL(originUrl);
-
-        if (originUrlParsed.origin !== clientUrlParsed.origin) {
+        if (!isSameOrigin(new URL(originUrl), clientUrl)) {
           return;
         }
 
@@ -109,7 +106,7 @@ export function useIframeMessages(
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [iframeRef, fetchToken, clientUrlParsed.origin]);
+  }, [iframeRef, fetchToken, clientUrl]);
 
   return { appIsReady, error };
 }
