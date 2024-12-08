@@ -10,6 +10,7 @@ const defaultClientUrl = 'https://backstage-client.apono.io';
 export function AppWrapper() {
   const config = useApi(configApiRef);
   const clientUrl = config.getOptionalString('apono.clientUrl') || defaultClientUrl;
+  const supportLinks = config.getOptionalConfigArray('apono.supportLinks') || [];
   const { profile, loading } = useProfile();
 
   return (
@@ -18,6 +19,9 @@ export function AppWrapper() {
         title="Apono"
         subtitle="Dynamic, just-in-time, just-enough access management that developers love."
       >
+        {supportLinks.map((link) => (
+          <HeaderLabel key={link.getString('label')} label={link.getString('label')} value={link.getString('value')} url={link.getString('url')} />
+        ))}
         <HeaderLabel label={profile?.displayName || 'Unknown'} value={profile?.email} />
       </Header>
       {!loading && (
