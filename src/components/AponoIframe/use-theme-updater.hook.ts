@@ -1,5 +1,5 @@
 import { useTheme, Theme } from '@material-ui/core/styles';
-import { useCallback, useEffect } from 'react';
+import { RefObject, useCallback, useEffect } from 'react';
 import { IframeMessage, MessageType } from './useIframeMessages';
 
 const serializeTheme = (theme: Theme) => ({
@@ -28,7 +28,7 @@ const serializeTheme = (theme: Theme) => ({
       primary: theme.palette.text.primary,
       secondary: theme.palette.text.secondary,
     },
-    },
+  },
   typography: {
     fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSize,
@@ -38,7 +38,7 @@ const serializeTheme = (theme: Theme) => ({
   },
 });
 
-export const useThemeUpdater = (appIsReady: boolean, iframeRef: React.RefObject<HTMLIFrameElement>, clientUrl: URL) => {
+export const useThemeUpdater = (appIsReady: boolean, iframeRef: RefObject<HTMLIFrameElement>, clientUrl: URL) => {
   const theme = useTheme();
 
   const sendMessage = useCallback((message: IframeMessage) => {
