@@ -1,8 +1,6 @@
 import React from 'react';
 import { Content, Header, HeaderLabel, Page } from '@backstage/core-components';
 import { useApi, configApiRef } from '@backstage/core-plugin-api';
-import { useTheme } from '@material-ui/core/styles';
-
 import { AponoIframe } from '../AponoIframe';
 import { useProfile } from './useProfile';
 import { isValidUrl } from '../helpers';
@@ -12,7 +10,6 @@ const defaultClientUrl = 'https://backstage-client.apono.io';
 function useAppWrapper() {
   const config = useApi(configApiRef);
   const { profile, loading: isProfileLoading } = useProfile();
-  const theme = useTheme();
 
   const clientUrl = config.getOptionalString('apono.clientUrl') || defaultClientUrl;
 
@@ -27,12 +24,11 @@ function useAppWrapper() {
     supportLinks: config.getOptionalConfigArray('apono.supportLinks') || [],
     profile,
     isProfileLoading,
-    theme,
   };
 }
 
 export function AppWrapper() {
-  const { clientUrl, supportLinks, profile, isProfileLoading, theme } = useAppWrapper();
+  const { clientUrl, supportLinks, profile, isProfileLoading } = useAppWrapper();
 
   return (
     <Page themeId="tool" >
@@ -50,7 +46,6 @@ export function AppWrapper() {
           <AponoIframe 
             clientUrl={clientUrl} 
             profile={profile || undefined} 
-            theme={theme}
           />
         </Content>
       )}

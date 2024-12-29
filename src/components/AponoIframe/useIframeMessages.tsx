@@ -2,10 +2,13 @@ import { useApi, ProfileInfo } from '@backstage/core-plugin-api';
 import React, { useCallback, useEffect, useState } from 'react';
 import { aponoApiRef } from '../../api';
 import { isSameOrigin, isValidUrl } from '../helpers';
-
+import { ThemeOptions } from '@material-ui/core';
+import { useThemeUpdater } from './use-theme-updater.hook';
+  
 export const MessageType = {
   READY: 'READY',
   AUTHENTICATE: 'AUTHENTICATE',
+  THEME_UPDATE: 'THEME_UPDATE',
 } as const;
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
@@ -17,10 +20,11 @@ interface IframeAuth {
   isFetching: boolean;
 }
 
-interface IframeMessage {
+export interface IframeMessage {
   type: MessageType;
   message?: string;
   auth?: IframeAuth;
+  theme?: ThemeOptions;
 }
 
 function useAuthenticate(
@@ -68,6 +72,7 @@ function useAuthenticate(
   return { fetchToken, error }
 }
 
+
 export function useIframeMessages(
   iframeRef: React.RefObject<HTMLIFrameElement>,
   clientUrl: URL,
@@ -76,6 +81,8 @@ export function useIframeMessages(
 
   const [appIsReady, setAppIsReady] = useState(false);
   const { fetchToken, error } = useAuthenticate(iframeRef, clientUrl, profile);
+
+  useThemeUpdater(appIsReady, iframeRef, clientUrl);
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent<IframeMessage>) => {
