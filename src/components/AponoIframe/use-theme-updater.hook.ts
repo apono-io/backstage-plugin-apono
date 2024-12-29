@@ -28,7 +28,7 @@ const serializeTheme = (theme: Theme) => ({
       primary: theme.palette.text.primary,
       secondary: theme.palette.text.secondary,
     },
-  },
+    },
   typography: {
     fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSize,
@@ -36,10 +36,6 @@ const serializeTheme = (theme: Theme) => ({
   shape: {
     borderRadius: theme.shape.borderRadius,
   },
-  breakpoints: {
-    values: theme.breakpoints.values,
-  },
-  zIndex: theme.zIndex,
 });
 
 export const useThemeUpdater = (appIsReady: boolean, iframeRef: React.RefObject<HTMLIFrameElement>, clientUrl: URL) => {
