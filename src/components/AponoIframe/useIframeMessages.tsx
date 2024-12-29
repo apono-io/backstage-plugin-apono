@@ -2,9 +2,9 @@ import { useApi, ProfileInfo } from '@backstage/core-plugin-api';
 import React, { useCallback, useEffect, useState } from 'react';
 import { aponoApiRef } from '../../api';
 import { isSameOrigin, isValidUrl } from '../helpers';
-import { ThemeOptions } from '@material-ui/core';
 import { useThemeUpdater } from './use-theme-updater.hook';
-  
+import { ThemeOptions } from '@material-ui/core';
+
 export const MessageType = {
   READY: 'READY',
   AUTHENTICATE: 'AUTHENTICATE',

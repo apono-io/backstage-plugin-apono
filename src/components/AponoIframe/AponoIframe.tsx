@@ -1,15 +1,17 @@
 import React, { useMemo, useRef } from "react";
+
 import { useIframeMessages } from "./useIframeMessages";
 import { WarningPanel } from "@backstage/core-components";
 import { ProfileInfo } from '@backstage/core-plugin-api';
 
 interface AponoIframeProps {
   clientUrl: URL;
-  profile?: ProfileInfo;
+  profile?: ProfileInfo
 }
 
 export function AponoIframe({ clientUrl, profile }: AponoIframeProps) {
   const iframeRef = useRef(null);
+
   const { appIsReady, error } = useIframeMessages(iframeRef, clientUrl, profile);
 
   const iframeStyles: React.CSSProperties = useMemo(() => ({
@@ -28,17 +30,11 @@ export function AponoIframe({ clientUrl, profile }: AponoIframeProps) {
       // eslint-disable-next-line no-console
       console.error('Failed to parse error message', e);
     }
-    return <WarningPanel severity="error" title="Internal error" message={message} />;
+
+    return (
+      <WarningPanel severity="error" title="Internal error" message={message} />
+    );
   }
 
-  return (
-    <iframe 
-      ref={iframeRef} 
-      title="Apono" 
-      src={clientUrl.toString()} 
-      style={iframeStyles} 
-      id="iframe" 
-      sandbox="allow-scripts allow-same-origin" 
-    />
-  );
+  return (<iframe ref={iframeRef} src={clientUrl.toString()} style={iframeStyles} id="iframe" title="Apono" sandbox="allow-scripts allow-same-origin" />)
 }

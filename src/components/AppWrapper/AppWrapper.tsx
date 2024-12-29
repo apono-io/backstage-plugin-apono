@@ -1,6 +1,7 @@
 import React from 'react';
 import { Content, Header, HeaderLabel, Page } from '@backstage/core-components';
-import { useApi, configApiRef } from '@backstage/core-plugin-api';
+import { useApi,  configApiRef } from '@backstage/core-plugin-api';
+
 import { AponoIframe } from '../AponoIframe';
 import { useProfile } from './useProfile';
 import { isValidUrl } from '../helpers';
@@ -43,10 +44,7 @@ export function AppWrapper() {
       </Header>
       {!isProfileLoading && (
         <Content stretch noPadding>
-          <AponoIframe 
-            clientUrl={clientUrl} 
-            profile={profile || undefined} 
-          />
+          <AponoIframe clientUrl={clientUrl} profile={profile || undefined} />
         </Content>
       )}
     </Page>
