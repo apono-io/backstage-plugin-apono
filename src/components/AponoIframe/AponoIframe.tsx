@@ -3,7 +3,7 @@ import React, { useMemo, useRef } from "react";
 import { useIframeMessages } from "./useIframeMessages";
 import { WarningPanel } from "@backstage/core-components";
 import { ProfileInfo } from '@backstage/core-plugin-api';
-import { useIsOutdatedSafari } from "./useIsOutdatedSafari";
+import { isValidSafari } from "./isValidSafari";
 
 interface AponoIframeProps {
   clientUrl: URL;
@@ -12,7 +12,6 @@ interface AponoIframeProps {
 
 export function AponoIframe({ clientUrl, profile }: AponoIframeProps) {
   const iframeRef = useRef(null);
-  const isOutdatedSafari = useIsOutdatedSafari();
 
   const { appIsReady, error } = useIframeMessages(iframeRef, clientUrl, profile);
 
@@ -38,7 +37,7 @@ export function AponoIframe({ clientUrl, profile }: AponoIframeProps) {
     );
   }
 
-  if (isOutdatedSafari()) {
+  if (!isValidSafari(navigator.userAgent)) {
     return <WarningPanel severity="error" title="Unsupported browser" message="Apono requires Safari 18 or later. Please update your browser to continue." />
   }
 
