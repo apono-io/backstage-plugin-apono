@@ -6,7 +6,7 @@ import { ProfileInfo } from '@backstage/core-plugin-api';
 import { useIsOutdatedSafari } from "./useIsOutdatedSafari";
 
 interface AponoIframeProps {
-  clientUrl: string;
+  clientUrl: URL;
   profile?: ProfileInfo
 }
 
@@ -42,5 +42,5 @@ export function AponoIframe({ clientUrl, profile }: AponoIframeProps) {
     return <WarningPanel severity="error" title="Unsupported browser" message="Apono requires Safari 18 or later. Please update your browser to continue." />
   }
 
-  return (<iframe ref={iframeRef} src={clientUrl} style={iframeStyles} id="iframe" title="Apono" sandbox="allow-scripts" />)
+  return (<iframe ref={iframeRef} src={clientUrl.toString()} style={iframeStyles} id="iframe" title="Apono" sandbox="allow-scripts allow-same-origin" />)
 }

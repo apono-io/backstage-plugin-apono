@@ -1,6 +1,7 @@
 import { useApi, ProfileInfo } from '@backstage/core-plugin-api';
 import React, { useCallback, useEffect, useState } from 'react';
 import { aponoApiRef } from '../../api';
+import { isSameOrigin, isValidUrl } from '../helpers';
 
 export const MessageType = {
   READY: 'READY',
@@ -24,12 +25,10 @@ interface IframeMessage {
 
 function useAuthenticate(
   iframeRef: React.RefObject<HTMLIFrameElement>,
-  clientUrl: string,
+  clientUrl: URL,
   profile?: ProfileInfo,
 ) {
   const apiClient = useApi(aponoApiRef);
-
-  const clientUrlParsed = new URL(clientUrl);
 
   const [token, setToken] = useState<string | undefined>();
   const [isFetched, setIsFetched] = useState<boolean>(false);
@@ -52,9 +51,9 @@ function useAuthenticate(
 
   const sendMessage = useCallback((message: IframeMessage) => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(message, clientUrlParsed.origin);
+      iframeRef.current.contentWindow.postMessage(message, clientUrl.origin);
     }
-  }, [clientUrlParsed.origin, iframeRef]);
+  }, [clientUrl.origin, iframeRef]);
 
   useEffect(() => {
     if (isFetched && token) {
@@ -71,34 +70,43 @@ function useAuthenticate(
 
 export function useIframeMessages(
   iframeRef: React.RefObject<HTMLIFrameElement>,
-  clientUrl: string,
+  clientUrl: URL,
   profile?: ProfileInfo,
 ) {
+
   const [appIsReady, setAppIsReady] = useState(false);
   const { fetchToken, error } = useAuthenticate(iframeRef, clientUrl, profile);
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent<IframeMessage>) => {
-      const clientUrlParsed = new URL(clientUrl);
-      const originUrlParsed = new URL(event.origin);
+      try {
+        const originUrl = event.origin;
 
-      if (originUrlParsed.origin !== clientUrlParsed.origin) {
-        return;
-      }
+        if (!isValidUrl(originUrl)) {
+          return;
+        }
 
-      switch (event.data.type) {
-        case MessageType.READY:
-          setAppIsReady(true);
-          fetchToken();
-          break;
-        default:
-          break;
+        if (!isSameOrigin(new URL(originUrl), clientUrl)) {
+          return;
+        }
+
+        switch (event.data.type) {
+          case MessageType.READY:
+            setAppIsReady(true);
+            fetchToken();
+            break;
+          default:
+            break;
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error(err);
       }
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [iframeRef, clientUrl, fetchToken]);
+  }, [iframeRef, fetchToken, clientUrl]);
 
   return { appIsReady, error };
 }
