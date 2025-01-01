@@ -8,6 +8,8 @@ const MessageType = {
   READY: 'READY',
   AUTHENTICATE: 'AUTHENTICATE',
   THEME_UPDATE: 'THEME_UPDATE',
+  AUTH_READY: 'AUTH_READY',
+  THEME_READY: 'THEME_READY',
 } as const;
 
 type IframeMessageType = (typeof MessageType)[keyof typeof MessageType];
@@ -18,7 +20,7 @@ interface IframeAuth {
   isFetching: boolean;
 }
 
- interface IframeMessage {
+interface IframeMessage {
   type: IframeMessageType;
   message?: string;
   auth?: IframeAuth;
@@ -54,23 +56,37 @@ const useIframeMessageSender = (iframeRef: RefObject<HTMLIFrameElement>, clientU
   );
 };
 
-const useThemeUpdater = (appIsReady: boolean, iframeRef: RefObject<HTMLIFrameElement>, clientUrl: URL) => {
+const useThemeUpdater = (
+  appIsReady: boolean,
+  iframeRef: RefObject<HTMLIFrameElement>,
+  clientUrl: URL,
+  onThemeReady: () => void,
+) => {
   const theme = useTheme();
   const sendMessage = useIframeMessageSender(iframeRef, clientUrl);
+  const [themeSent, setThemeSent] = useState(false);
 
   useEffect(() => {
-    if (appIsReady && theme) {
+    if (appIsReady && theme && !themeSent) {
       sendMessage({
         type: MessageType.THEME_UPDATE,
         theme: serializeTheme(theme),
       });
+      setThemeSent(true);
     }
-  }, [appIsReady, theme, sendMessage]);
+  }, [appIsReady, theme, sendMessage, themeSent]);
+
+  useEffect(() => {
+    if (themeSent) {
+      onThemeReady();
+    }
+  }, [themeSent, onThemeReady]);
 };
 
 const useAuthenticate = (
   iframeRef: RefObject<HTMLIFrameElement>,
   clientUrl: URL,
+  onAuthReady: () => void,
   profile?: ProfileInfo,
 ) => {
   const apiClient = useApi(aponoApiRef);
@@ -81,6 +97,7 @@ const useAuthenticate = (
     error: undefined as Error | undefined,
   });
   const sendMessage = useIframeMessageSender(iframeRef, clientUrl);
+  const [authSent, setAuthSent] = useState(false);
 
   const fetchToken = async () => {
     setAuthState(prev => ({ ...prev, isFetching: true }));
@@ -105,13 +122,20 @@ const useAuthenticate = (
 
   useEffect(() => {
     const { token, isFetched, isFetching } = authState;
-    if (isFetched && token) {
+    if (isFetched && token && !authSent) {
       sendMessage({
         type: MessageType.AUTHENTICATE,
         auth: { token, isFetched, isFetching },
       });
+      setAuthSent(true);
     }
-  }, [authState, sendMessage]);
+  }, [authState, sendMessage, authSent]);
+
+  useEffect(() => {
+    if (authSent) {
+      onAuthReady();
+    }
+  }, [authSent, onAuthReady]);
 
   return { fetchToken, error: authState.error };
 };
@@ -122,9 +146,22 @@ export function useIframeMessages(
   profile?: ProfileInfo,
 ) {
   const [appIsReady, setAppIsReady] = useState(false);
-  const { fetchToken, error } = useAuthenticate(iframeRef, clientUrl, profile);
+  const [authIsReady, setAuthIsReady] = useState(false);
+  const [themeIsReady, setThemeIsReady] = useState(false);
 
-  useThemeUpdater(appIsReady, iframeRef, clientUrl);
+  const { fetchToken, error } = useAuthenticate(
+    iframeRef,
+    clientUrl,
+    useCallback(() => setAuthIsReady(true), []),
+    profile,
+  );
+
+  useThemeUpdater(
+    appIsReady,
+    iframeRef,
+    clientUrl,
+    useCallback(() => setThemeIsReady(true), []),
+  );
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent<IframeMessage>) => {
@@ -133,9 +170,19 @@ export function useIframeMessages(
           return;
         }
 
-        if (event.data.type === MessageType.READY) {
-          setAppIsReady(true);
-          fetchToken();
+        switch (event.data.type) {
+          case MessageType.READY:
+            setAppIsReady(true);
+            fetchToken();
+            break;
+          case MessageType.AUTH_READY:
+            setAuthIsReady(true);
+            break;
+          case MessageType.THEME_READY:
+            setThemeIsReady(true);
+            break;
+          default:
+            break;
         }
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -147,5 +194,10 @@ export function useIframeMessages(
     return () => window.removeEventListener('message', handleMessage);
   }, [clientUrl, fetchToken]);
 
-  return { appIsReady, error };
+  return { 
+    appIsReady,
+    authIsReady,
+    themeIsReady,
+    error,
+  };
 }
