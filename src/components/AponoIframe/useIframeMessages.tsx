@@ -2,7 +2,8 @@ import { useApi, ProfileInfo } from '@backstage/core-plugin-api';
 import { useCallback, useEffect, useState, RefObject } from 'react';
 import { aponoApiRef } from '../../api';
 import { isSameOrigin, isValidUrl } from '../helpers';
-import { Theme, ThemeOptions, useTheme } from '@material-ui/core';
+import {  ThemeOptions, useTheme } from '@material-ui/core';
+import { serializeTheme } from './themeSerializer';
 
 const MessageType = {
   READY: 'READY',
@@ -25,24 +26,6 @@ interface IframeMessage {
   auth?: IframeAuth;
   theme?: ThemeOptions;
 }
-
-const serializeTheme = (theme: Theme): ThemeOptions => ({
-  palette: {
-    type: theme.palette.type,
-    primary: theme.palette.primary,
-    secondary: theme.palette.secondary,
-    error: theme.palette.error,
-    background: theme.palette.background,
-    text: theme.palette.text,
-  },
-  typography: {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: theme.typography.fontSize,
-  },
-  shape: {
-    borderRadius: theme.shape.borderRadius,
-  },
-});
 
 const useIframeMessageSender = (iframeRef: RefObject<HTMLIFrameElement>, clientUrl: URL) => {
   return useCallback(
