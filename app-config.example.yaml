@@ -19,3 +19,4 @@ apono:
     - label: Documentation
       value: Go here
       url: https://example.com/docs
+  enableSafeSafariCheck: false

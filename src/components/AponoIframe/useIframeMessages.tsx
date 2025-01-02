@@ -24,7 +24,7 @@ interface IframeMessage {
 }
 
 function useAuthenticate(
-  iframeRef: React.RefObject<HTMLIFrameElement>,
+  iframeRef: React.RefObject<HTMLIFrameElement | null>,
   clientUrl: URL,
   profile?: ProfileInfo,
 ) {
@@ -35,7 +35,7 @@ function useAuthenticate(
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [error, setError] = useState<Error | undefined>();
 
-  const fetchToken = async () => {
+  const fetchToken = useCallback(async () => {
     setIsFetching(true);
 
     try {
@@ -47,7 +47,7 @@ function useAuthenticate(
 
     setIsFetched(true)
     setIsFetching(false)
-  }
+  }, [apiClient, profile?.email]);
 
   const sendMessage = useCallback((message: IframeMessage) => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
@@ -69,7 +69,7 @@ function useAuthenticate(
 }
 
 export function useIframeMessages(
-  iframeRef: React.RefObject<HTMLIFrameElement>,
+  iframeRef: React.RefObject<HTMLIFrameElement | null>,
   clientUrl: URL,
   profile?: ProfileInfo,
 ) {
