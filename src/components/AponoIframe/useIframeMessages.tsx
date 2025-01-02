@@ -8,7 +8,6 @@ const MessageType = {
   READY: 'READY',
   AUTHENTICATE: 'AUTHENTICATE',
   THEME_UPDATE: 'THEME_UPDATE',
-  AUTH_READY: 'AUTH_READY',
   THEME_READY: 'THEME_READY',
 } as const;
 
@@ -56,37 +55,23 @@ const useIframeMessageSender = (iframeRef: RefObject<HTMLIFrameElement>, clientU
   );
 };
 
-const useThemeUpdater = (
-  appIsReady: boolean,
-  iframeRef: RefObject<HTMLIFrameElement>,
-  clientUrl: URL,
-  onThemeReady: () => void,
-) => {
+const useThemeUpdater = (themeReady: boolean, iframeRef: RefObject<HTMLIFrameElement>, clientUrl: URL) => {
   const theme = useTheme();
   const sendMessage = useIframeMessageSender(iframeRef, clientUrl);
-  const [themeSent, setThemeSent] = useState(false);
 
   useEffect(() => {
-    if (appIsReady && theme && !themeSent) {
+    if (themeReady && theme) {
       sendMessage({
         type: MessageType.THEME_UPDATE,
         theme: serializeTheme(theme),
       });
-      setThemeSent(true);
     }
-  }, [appIsReady, theme, sendMessage, themeSent]);
-
-  useEffect(() => {
-    if (themeSent) {
-      onThemeReady();
-    }
-  }, [themeSent, onThemeReady]);
+  }, [themeReady, theme, sendMessage]);
 };
 
 const useAuthenticate = (
   iframeRef: RefObject<HTMLIFrameElement>,
   clientUrl: URL,
-  onAuthReady: () => void,
   profile?: ProfileInfo,
 ) => {
   const apiClient = useApi(aponoApiRef);
@@ -97,7 +82,6 @@ const useAuthenticate = (
     error: undefined as Error | undefined,
   });
   const sendMessage = useIframeMessageSender(iframeRef, clientUrl);
-  const [authSent, setAuthSent] = useState(false);
 
   const fetchToken = async () => {
     setAuthState(prev => ({ ...prev, isFetching: true }));
@@ -122,20 +106,13 @@ const useAuthenticate = (
 
   useEffect(() => {
     const { token, isFetched, isFetching } = authState;
-    if (isFetched && token && !authSent) {
+    if (isFetched && token) {
       sendMessage({
         type: MessageType.AUTHENTICATE,
         auth: { token, isFetched, isFetching },
       });
-      setAuthSent(true);
     }
-  }, [authState, sendMessage, authSent]);
-
-  useEffect(() => {
-    if (authSent) {
-      onAuthReady();
-    }
-  }, [authSent, onAuthReady]);
+  }, [authState, sendMessage]);
 
   return { fetchToken, error: authState.error };
 };
@@ -146,22 +123,10 @@ export function useIframeMessages(
   profile?: ProfileInfo,
 ) {
   const [appIsReady, setAppIsReady] = useState(false);
-  const [authIsReady, setAuthIsReady] = useState(false);
-  const [themeIsReady, setThemeIsReady] = useState(false);
+  const [themeReady, setThemeReady] = useState(false);
+  const { fetchToken, error } = useAuthenticate(iframeRef, clientUrl, profile);
 
-  const { fetchToken, error } = useAuthenticate(
-    iframeRef,
-    clientUrl,
-    useCallback(() => setAuthIsReady(true), []),
-    profile,
-  );
-
-  useThemeUpdater(
-    appIsReady,
-    iframeRef,
-    clientUrl,
-    useCallback(() => setThemeIsReady(true), []),
-  );
+  useThemeUpdater(themeReady, iframeRef, clientUrl);
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent<IframeMessage>) => {
@@ -175,11 +140,8 @@ export function useIframeMessages(
             setAppIsReady(true);
             fetchToken();
             break;
-          case MessageType.AUTH_READY:
-            setAuthIsReady(true);
-            break;
           case MessageType.THEME_READY:
-            setThemeIsReady(true);
+            setThemeReady(true);
             break;
           default:
             break;
@@ -194,10 +156,5 @@ export function useIframeMessages(
     return () => window.removeEventListener('message', handleMessage);
   }, [clientUrl, fetchToken]);
 
-  return { 
-    appIsReady,
-    authIsReady,
-    themeIsReady,
-    error,
-  };
+  return { appIsReady, themeReady, error };
 }
