@@ -37,6 +37,32 @@ This configuration allows Backstage to load iframes from both its own origin ('s
 
 Note: If you're using a different environment (e.g., staging), make sure to use the appropriate Apono client URL.
 
+## Configuration
+
+### Support Links
+
+The `supportLinks` configuration allows you to define custom support links that will be displayed in the application. Add the following to your `app-config.yaml`:
+
+```yaml
+apono:
+  supportLinks:
+    - label: "Documentation"
+      value: "docs"
+      url: "https://docs.example.com"
+    - label: "Help Center"
+      value: "help"
+      url: "https://help.example.com"
+```
+
+### Safe Safari Check
+
+The `enableSafeSafariCheck` flag enables additional compatibility checks for Safari browsers to mitigate [CVE-2024-44187](https://nvd.nist.gov/vuln/detail/CVE-2024-44187). When enabled, the application will perform extra validation to ensure features work correctly and securely in Safari. If you want to enable this feature, add the following to your `app-config.yaml`:
+
+```yaml
+apono:
+  enableSafeSafariCheck: true
+```
+
 ## Contributing
 
 Everyone is welcome to contribute to this repository. Feel free to raise [issues](https://github.com/apono-io/backstage-plugin-apono/issues) or to submit [Pull Requests.](https://github.com/apono-io/backstage-plugin-apono/pulls).

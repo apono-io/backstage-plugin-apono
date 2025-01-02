@@ -1,5 +1,4 @@
-export function isValidSafari(userAgent: string): boolean {
-  console.log('userAgent', userAgent);
+export function isSafeSafari(userAgent: string): boolean {
   const isSafari = /Safari/.test(userAgent) && !/Chrome|CriOS|FxiOS|EdgiOS/.test(userAgent);
 
   if (!isSafari) {

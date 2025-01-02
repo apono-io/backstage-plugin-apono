@@ -29,5 +29,11 @@ export interface Config {
       */
       url: string;
     }[];
+
+    /**
+     * Enable safe Safari check
+     * @visibility frontend
+     */
+    enableSafeSafariCheck?: boolean;
   };
 }
