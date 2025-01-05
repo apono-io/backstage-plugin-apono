@@ -2,7 +2,7 @@ import { useApi, ProfileInfo } from '@backstage/core-plugin-api';
 import { useCallback, useEffect, useState, RefObject } from 'react';
 import { aponoApiRef } from '../../api';
 import { isSameOrigin, isValidUrl } from '../helpers';
-import {  ThemeOptions, useTheme } from '@material-ui/core';
+import { ThemeOptions, useTheme } from '@material-ui/core';
 import { serializeTheme } from './themeSerializer';
 
 const MessageType = {
@@ -38,18 +38,20 @@ const useIframeMessageSender = (iframeRef: RefObject<HTMLIFrameElement>, clientU
   );
 };
 
-const useThemeUpdater = (themeReady: boolean, iframeRef: RefObject<HTMLIFrameElement>, clientUrl: URL) => {
+const useThemeUpdater = (iframeRef: RefObject<HTMLIFrameElement>, clientUrl: URL) => {
   const theme = useTheme();
   const sendMessage = useIframeMessageSender(iframeRef, clientUrl);
 
-  useEffect(() => {
-    if (themeReady && theme) {
-      sendMessage({
-        type: MessageType.THEME_UPDATE,
-        theme: serializeTheme(theme),
-      });
-    }
-  }, [themeReady, theme, sendMessage]);
+  const updateTheme = useCallback(() => {
+    if (!theme) return;
+
+    sendMessage({
+      type: MessageType.THEME_UPDATE,
+      theme: serializeTheme(theme),
+    });
+  }, [theme, sendMessage]);
+
+  return { updateTheme };
 };
 
 const useAuthenticate = (
@@ -58,46 +60,34 @@ const useAuthenticate = (
   profile?: ProfileInfo,
 ) => {
   const apiClient = useApi(aponoApiRef);
-  const [authState, setAuthState] = useState({
-    token: '',
-    isFetched: false,
-    isFetching: false,
-    error: undefined as Error | undefined,
-  });
+  const [error, setError] = useState<Error | undefined>();
   const sendMessage = useIframeMessageSender(iframeRef, clientUrl);
 
-  const fetchToken = async () => {
-    setAuthState(prev => ({ ...prev, isFetching: true }));
+  const fetchToken = useCallback(async () => {
+    if (!profile?.email) return;
+
+    let token: string | undefined;
 
     try {
       const res = await apiClient.authenticate(profile?.email);
-      setAuthState(prev => ({
-        ...prev,
-        token: res.token,
-        isFetched: true,
-        isFetching: false,
-      }));
+      token = res.token;
     } catch (err) {
-      setAuthState(prev => ({
-        ...prev,
-        error: err as Error,
-        isFetched: true,
-        isFetching: false,
-      }));
+      setError(err as Error)
     }
-  };
 
-  useEffect(() => {
-    const { token, isFetched, isFetching } = authState;
-    if (isFetched && token) {
+    if (token) {
       sendMessage({
         type: MessageType.AUTHENTICATE,
-        auth: { token, isFetched, isFetching },
+        auth: {
+          token,
+          isFetched: true,
+          isFetching: false,
+        },
       });
     }
-  }, [authState, sendMessage]);
+  }, [apiClient, profile?.email, sendMessage]);
 
-  return { fetchToken, error: authState.error };
+  return { fetchToken, error };
 };
 
 export function useIframeMessages(
@@ -106,10 +96,8 @@ export function useIframeMessages(
   profile?: ProfileInfo,
 ) {
   const [appIsReady, setAppIsReady] = useState(false);
-  const [themeReady, setThemeReady] = useState(false);
   const { fetchToken, error } = useAuthenticate(iframeRef, clientUrl, profile);
-
-  useThemeUpdater(themeReady, iframeRef, clientUrl);
+  const { updateTheme } = useThemeUpdater(iframeRef, clientUrl);
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent<IframeMessage>) => {
@@ -124,7 +112,7 @@ export function useIframeMessages(
             fetchToken();
             break;
           case MessageType.THEME_READY:
-            setThemeReady(true);
+            updateTheme();
             break;
           default:
             break;
@@ -137,7 +125,7 @@ export function useIframeMessages(
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [clientUrl, fetchToken]);
+  }, [clientUrl, fetchToken, updateTheme]);
 
-  return { appIsReady, themeReady, error };
+  return { appIsReady, error };
 }
