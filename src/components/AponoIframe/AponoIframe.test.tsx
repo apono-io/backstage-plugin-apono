@@ -47,11 +47,13 @@ describe('AponoIframe', () => {
     const errorMessage = 'Internal error'
     mockAponoApi.authenticate.mockRejectedValue(new Error(JSON.stringify({ message: errorMessage })))
 
-    render(
-      <TestApiProvider apis={[[aponoApiRef, mockAponoApi]]}>
-        <AponoIframe {...defaultProps} />
-      </TestApiProvider>
-    )
+    act(() => {
+      render(
+        <TestApiProvider apis={[[aponoApiRef, mockAponoApi]]}>
+          <AponoIframe {...defaultProps} />
+        </TestApiProvider>
+      )
+    })
 
     act(() => {
       // Simulate app ready by dispatching a message event

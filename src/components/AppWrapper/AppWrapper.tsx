@@ -20,16 +20,19 @@ function useAppWrapper() {
 
   const clientUrlParsed = new URL(clientUrl);
 
+  const enableSafeSafariCheck = config.getOptionalBoolean('apono.enableSafeSafariCheck') || false;
+
   return {
     clientUrl: clientUrlParsed,
     supportLinks: config.getOptionalConfigArray('apono.supportLinks') || [],
     profile,
     isProfileLoading,
+    enableSafeSafariCheck,
   };
 }
 
 export function AppWrapper() {
-  const { clientUrl, supportLinks, profile, isProfileLoading } = useAppWrapper();
+  const { clientUrl, supportLinks, profile, isProfileLoading, enableSafeSafariCheck } = useAppWrapper();
 
   return (
     <Page themeId="tool" >
@@ -44,7 +47,7 @@ export function AppWrapper() {
       </Header>
       {!isProfileLoading && (
         <Content stretch noPadding>
-          <AponoIframe clientUrl={clientUrl} profile={profile || undefined} />
+          <AponoIframe clientUrl={clientUrl} profile={profile || undefined} checkSafeSafari={enableSafeSafariCheck} />
         </Content>
       )}
     </Page>

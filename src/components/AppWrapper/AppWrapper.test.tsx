@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { act } from 'react'
 import { configApiRef } from '@backstage/core-plugin-api'
 import { render, screen } from '@testing-library/react'
 import { TestApiProvider } from '@backstage/test-utils'
@@ -20,6 +20,7 @@ describe('AppWrapper', () => {
   const mockConfig = {
     getOptionalString: jest.fn(),
     getOptionalConfigArray: jest.fn(),
+    getOptionalBoolean: jest.fn(),
   }
 
   beforeEach(() => {
@@ -36,15 +37,13 @@ describe('AppWrapper', () => {
     ])
   })
 
-  const renderComponent = (children: React.ReactNode) => {
-    return render(
-      <ThemeProvider theme={lightTheme}>
-        <TestApiProvider apis={[[configApiRef, mockConfig]]}>
-          {children}
-        </TestApiProvider>
-      </ThemeProvider>
-    )
-  }
+  const renderComponent = (children: React.ReactNode) => render(
+    <ThemeProvider theme={lightTheme}>
+      <TestApiProvider apis={[[configApiRef, mockConfig]]}>
+        {children}
+      </TestApiProvider>
+    </ThemeProvider>
+  )
 
   it('renders correctly with valid profile', () => {
     mockUseProfile.mockReturnValue({
@@ -57,7 +56,9 @@ describe('AppWrapper', () => {
       refresh: jest.fn(),
     })
 
-    renderComponent(<AppWrapper />)
+    act(() => {
+      renderComponent(<AppWrapper />)
+    })
 
     expect(screen.getByText('Apono')).toBeInTheDocument()
     expect(screen.getByText('Test User')).toBeInTheDocument()
@@ -73,7 +74,9 @@ describe('AppWrapper', () => {
       refresh: jest.fn(),
     })
 
-    renderComponent(<AppWrapper />)
+    act(() => {
+      renderComponent(<AppWrapper />)
+    })
 
     expect(screen.queryByTestId('apono-iframe')).not.toBeInTheDocument()
   })
@@ -87,8 +90,9 @@ describe('AppWrapper', () => {
     })
     mockConfig.getOptionalString.mockReturnValue('invalid-url')
 
-    expect(() =>
+    expect(() => {
       renderComponent(<AppWrapper />)
-    ).toThrow('Invalid client URL')
+    })
+    .toThrow('Invalid client URL')
   })
 })
