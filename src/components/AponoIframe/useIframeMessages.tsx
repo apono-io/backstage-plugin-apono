@@ -1,15 +1,18 @@
 import { useApi, ProfileInfo } from '@backstage/core-plugin-api';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, RefObject } from 'react';
 import { aponoApiRef } from '../../api';
 import { isSameOrigin, isValidUrl } from '../helpers';
+import { ThemeOptions, useTheme } from '@material-ui/core';
+import { serializeTheme } from './themeSerializer';
 
-export const MessageType = {
+const MessageType = {
   READY: 'READY',
   AUTHENTICATE: 'AUTHENTICATE',
+  THEME_UPDATE: 'THEME_UPDATE',
+  THEME_READY: 'THEME_READY',
 } as const;
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export type MessageType = (typeof MessageType)[keyof typeof MessageType];
+type IframeMessageType = (typeof MessageType)[keyof typeof MessageType];
 
 interface IframeAuth {
   token: string;
@@ -18,75 +21,88 @@ interface IframeAuth {
 }
 
 interface IframeMessage {
-  type: MessageType;
+  type: IframeMessageType;
   message?: string;
   auth?: IframeAuth;
+  theme?: ThemeOptions;
 }
 
-function useAuthenticate(
-  iframeRef: React.RefObject<HTMLIFrameElement | null>,
+const useIframeMessageSender = (iframeRef: RefObject<HTMLIFrameElement>, clientUrl: URL) => {
+  return useCallback(
+    (message: IframeMessage) => {
+      if (iframeRef.current?.contentWindow) {
+        iframeRef.current.contentWindow.postMessage(message, clientUrl.origin);
+      }
+    },
+    [clientUrl.origin, iframeRef],
+  );
+};
+
+const useThemeUpdater = (iframeRef: RefObject<HTMLIFrameElement>, clientUrl: URL) => {
+  const theme = useTheme();
+  const sendMessage = useIframeMessageSender(iframeRef, clientUrl);
+
+  const updateTheme = useCallback(() => {
+    if (!theme) return;
+
+    sendMessage({
+      type: MessageType.THEME_UPDATE,
+      theme: serializeTheme(theme),
+    });
+  }, [theme, sendMessage]);
+
+  return { updateTheme };
+};
+
+const useAuthenticate = (
+  iframeRef: RefObject<HTMLIFrameElement>,
   clientUrl: URL,
   profile?: ProfileInfo,
-) {
+) => {
   const apiClient = useApi(aponoApiRef);
-
-  const [token, setToken] = useState<string | undefined>();
-  const [isFetched, setIsFetched] = useState<boolean>(false);
-  const [isFetching, setIsFetching] = useState<boolean>(false);
   const [error, setError] = useState<Error | undefined>();
+  const sendMessage = useIframeMessageSender(iframeRef, clientUrl);
 
   const fetchToken = useCallback(async () => {
-    setIsFetching(true);
+    if (!profile?.email) return;
+
+    let token: string | undefined;
 
     try {
       const res = await apiClient.authenticate(profile?.email);
-      setToken(res.token);
+      token = res.token;
     } catch (err) {
       setError(err as Error)
     }
 
-    setIsFetched(true)
-    setIsFetching(false)
-  }, [apiClient, profile?.email]);
-
-  const sendMessage = useCallback((message: IframeMessage) => {
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(message, clientUrl.origin);
+    if (token) {
+      sendMessage({
+        type: MessageType.AUTHENTICATE,
+        auth: {
+          token,
+          isFetched: true,
+          isFetching: false,
+        },
+      });
     }
-  }, [clientUrl.origin, iframeRef]);
+  }, [apiClient, profile?.email, sendMessage]);
 
-  useEffect(() => {
-    if (isFetched && token) {
-      sendMessage({ type: MessageType.AUTHENTICATE, auth: {
-        isFetched,
-        token,
-        isFetching,
-      }});
-    }
-  }, [isFetched, token, isFetching, error, sendMessage]);
-
-  return { fetchToken, error }
-}
+  return { fetchToken, error };
+};
 
 export function useIframeMessages(
-  iframeRef: React.RefObject<HTMLIFrameElement | null>,
+  iframeRef: RefObject<HTMLIFrameElement>,
   clientUrl: URL,
   profile?: ProfileInfo,
 ) {
-
   const [appIsReady, setAppIsReady] = useState(false);
   const { fetchToken, error } = useAuthenticate(iframeRef, clientUrl, profile);
+  const { updateTheme } = useThemeUpdater(iframeRef, clientUrl);
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent<IframeMessage>) => {
       try {
-        const originUrl = event.origin;
-
-        if (!isValidUrl(originUrl)) {
-          return;
-        }
-
-        if (!isSameOrigin(new URL(originUrl), clientUrl)) {
+        if (!isValidUrl(event.origin) || !isSameOrigin(new URL(event.origin), clientUrl)) {
           return;
         }
 
@@ -95,18 +111,21 @@ export function useIframeMessages(
             setAppIsReady(true);
             fetchToken();
             break;
+          case MessageType.THEME_READY:
+            updateTheme();
+            break;
           default:
             break;
         }
       } catch (err) {
         // eslint-disable-next-line no-console
-        console.error(err);
+        console.error('Error handling iframe message:', err);
       }
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [iframeRef, fetchToken, clientUrl]);
+  }, [clientUrl, fetchToken, updateTheme]);
 
   return { appIsReady, error };
 }
