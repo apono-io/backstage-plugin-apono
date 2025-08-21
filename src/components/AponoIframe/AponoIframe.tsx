@@ -12,7 +12,7 @@ interface AponoIframeProps {
 }
 
 export function AponoIframe({ clientUrl, profile, checkSafeSafari }: AponoIframeProps) {
-  const iframeRef = useRef(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   const { appIsReady, error } = useIframeMessages(iframeRef, clientUrl, profile);
 

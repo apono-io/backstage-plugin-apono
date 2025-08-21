@@ -27,7 +27,7 @@ interface IframeMessage {
   theme?: ThemeOptions;
 }
 
-const useIframeMessageSender = (iframeRef: RefObject<HTMLIFrameElement>, clientUrl: URL) => {
+const useIframeMessageSender = (iframeRef: RefObject<HTMLIFrameElement | null>, clientUrl: URL) => {
   return useCallback(
     (message: IframeMessage) => {
       if (iframeRef.current?.contentWindow) {
@@ -38,7 +38,7 @@ const useIframeMessageSender = (iframeRef: RefObject<HTMLIFrameElement>, clientU
   );
 };
 
-const useThemeUpdater = (iframeRef: RefObject<HTMLIFrameElement>, clientUrl: URL) => {
+const useThemeUpdater = (iframeRef: RefObject<HTMLIFrameElement | null>, clientUrl: URL) => {
   const theme = useTheme();
   const sendMessage = useIframeMessageSender(iframeRef, clientUrl);
 
@@ -55,7 +55,7 @@ const useThemeUpdater = (iframeRef: RefObject<HTMLIFrameElement>, clientUrl: URL
 };
 
 const useAuthenticate = (
-  iframeRef: RefObject<HTMLIFrameElement>,
+  iframeRef: RefObject<HTMLIFrameElement | null>,
   clientUrl: URL,
   profile?: ProfileInfo,
 ) => {
@@ -91,7 +91,7 @@ const useAuthenticate = (
 };
 
 export function useIframeMessages(
-  iframeRef: RefObject<HTMLIFrameElement>,
+  iframeRef: RefObject<HTMLIFrameElement | null>,
   clientUrl: URL,
   profile?: ProfileInfo,
 ) {
