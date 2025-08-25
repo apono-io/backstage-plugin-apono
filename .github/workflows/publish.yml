@@ -39,7 +39,7 @@ jobs:
           yarn version ${GITHUB_REF#refs/tags/v} -i
           node scripts/update-version.js
           echo "//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN" > .npmrc
-          yarn publish --non-interactive
+          yarn npm publish --access public --tolerate-republish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
