@@ -52,6 +52,8 @@
     "@testing-library/react": "^14.0.0",
     "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^14.0.0",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
     "msw": "^1.0.0",
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0"
   },
@@ -59,5 +61,6 @@
     "dist",
     "config.d.ts"
   ],
-  "configSchema": "config.d.ts"
+  "configSchema": "config.d.ts",
+  "packageManager": "yarn@4.9.3"
 }

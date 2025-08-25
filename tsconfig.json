@@ -6,6 +6,13 @@
   ],
   "compilerOptions": {
     "outDir": "dist-types/",
-    "incremental": false
+    "incremental": false,
+    "types": [
+      "react",
+      "react-dom",
+      "node",
+      "jest",
+      "webpack-env"
+    ]
   }
 }

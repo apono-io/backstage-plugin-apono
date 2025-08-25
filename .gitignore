@@ -103,7 +103,12 @@ dist
 # TernJS port file
 .tern-port
 
-.yarn
+# ignore everything in .yarn
+.yarn/*
+
+# but keep releases
+!.yarn/releases
+!.yarn/releases/*
 
 dist-types/
 
