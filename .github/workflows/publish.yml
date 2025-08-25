@@ -36,7 +36,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          yarn version --new-version ${GITHUB_REF#refs/tags/v} --no-git-tag-version --message "chore(release): %s [skip ci]"
+          yarn version ${GITHUB_REF#refs/tags/v} -i
           node scripts/update-version.js
           echo "//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN" > .npmrc
           yarn publish --non-interactive
