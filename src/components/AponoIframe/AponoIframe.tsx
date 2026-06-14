@@ -42,5 +42,5 @@ export function AponoIframe({ clientUrl, profile, checkSafeSafari }: AponoIframe
     return <WarningPanel severity="error" title="Unsupported browser" message="Apono requires Safari 18 or later. Please update your browser to continue." />
   }
 
-  return (<iframe ref={iframeRef} src={clientUrl.toString()} style={iframeStyles} id="iframe" title="Apono" sandbox="allow-scripts allow-same-origin" />)
+  return (<iframe ref={iframeRef} src={clientUrl.toString()} style={iframeStyles} id="iframe" title="Apono" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" />)
 }
