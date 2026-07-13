@@ -1,8 +1,8 @@
-import { Theme, ThemeOptions } from '@material-ui/core';
+import { Theme, ThemeOptions } from '@mui/material';
 
 export const serializeTheme = (theme: Theme): ThemeOptions => ({
   palette: {
-    type: theme.palette.type,
+    mode: theme.palette.mode,
     primary: theme.palette.primary,
     secondary: theme.palette.secondary,
     error: theme.palette.error,
@@ -53,6 +53,5 @@ export const serializeTheme = (theme: Theme): ThemeOptions => ({
     },
   },
   shadows: theme.shadows,
-  overrides: theme.overrides,
-  props: theme.props,
-}); 
+  components: theme.components,
+});
