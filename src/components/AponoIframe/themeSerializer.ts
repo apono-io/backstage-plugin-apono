@@ -1,4 +1,4 @@
-import { Theme, ThemeOptions } from '@mui/material';
+import { Theme, ThemeOptions } from '@mui/material/styles';
 
 export const serializeTheme = (theme: Theme): ThemeOptions => ({
   palette: {
@@ -53,5 +53,4 @@ export const serializeTheme = (theme: Theme): ThemeOptions => ({
     },
   },
   shadows: theme.shadows,
-  components: theme.components,
 });

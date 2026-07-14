@@ -2,7 +2,7 @@ import { useApi, ProfileInfo } from '@backstage/core-plugin-api';
 import { useCallback, useEffect, useState, RefObject } from 'react';
 import { aponoApiRef } from '../../api';
 import { isSameOrigin, isValidUrl } from '../helpers';
-import { ThemeOptions, useTheme } from '@mui/material';
+import { ThemeOptions, useTheme } from '@mui/material/styles';
 import { serializeTheme } from './themeSerializer';
 
 const MessageType = {
