@@ -1,11 +1,9 @@
 import React, { act } from 'react'
 import { configApiRef } from '@backstage/core-plugin-api'
 import { render, screen } from '@testing-library/react'
-import { TestApiProvider } from '@backstage/test-utils'
+import { TestApiProvider, wrapInTestApp } from '@backstage/test-utils'
 import { AppWrapper } from './AppWrapper'
 import { useProfile } from './useProfile'
-import { ThemeProvider } from '@material-ui/core'
-import { lightTheme } from '@backstage/theme'
 
 // Mock the useProfile hook
 jest.mock('./useProfile')
@@ -38,11 +36,11 @@ describe('AppWrapper', () => {
   })
 
   const renderComponent = (children: React.ReactNode) => render(
-    <ThemeProvider theme={lightTheme}>
+    wrapInTestApp(
       <TestApiProvider apis={[[configApiRef, mockConfig]]}>
         {children}
       </TestApiProvider>
-    </ThemeProvider>
+    )
   )
 
   it('renders correctly with valid profile', () => {

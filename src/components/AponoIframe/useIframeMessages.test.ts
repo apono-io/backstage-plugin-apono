@@ -1,13 +1,13 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useApi } from '@backstage/core-plugin-api';
-import { Theme, useTheme } from '@material-ui/core';
+import { Theme, useTheme } from '@mui/material/styles';
 import { useIframeMessages } from './useIframeMessages';
 import { serializeTheme } from './themeSerializer';
 import { mockTheme } from './mockTheme';
 
 // Mock dependencies
 jest.mock('@backstage/core-plugin-api');
-jest.mock('@material-ui/core');
+jest.mock('@mui/material/styles');
 
 describe('useIframeMessages', () => {
   const mockClientUrl = new URL('https://example.com');
@@ -91,7 +91,7 @@ describe('useIframeMessages', () => {
     expect(mockPostMessage).toHaveBeenCalledWith(
       {
         type: 'THEME_UPDATE',
-        theme: serializeTheme(mockTheme as Theme),
+        theme: serializeTheme(mockTheme as unknown as Theme),
       },
       'https://example.com',
     );
