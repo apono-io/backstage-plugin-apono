@@ -35,7 +35,7 @@ backend:
 
 This configuration allows Backstage to load iframes from both its own origin ('self') and the Apono client URL.
 
-Note: If you're using a different environment (e.g., staging), make sure to use the appropriate Apono client URL.
+Note: If you're using a different environment, set the matching Apono client URL in both `frame-src` and `apono.clientUrl`. For Apono staging, use `https://backstage-client.aponodev.io`.
 
 ## Configuration
 
